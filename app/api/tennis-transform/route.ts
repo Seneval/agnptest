@@ -5,8 +5,12 @@ import { toFile } from 'openai';
 export const maxDuration = 10; // 10 seconds for Hobby plan
 
 export async function POST(request: NextRequest) {
+  console.log('POST /api/tennis-transform - Starting');
+  
   try {
+    console.log('Parsing request body...');
     const { image } = await request.json();
+    console.log('Request body parsed successfully');
 
     if (!image) {
       return NextResponse.json(
@@ -16,7 +20,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Step 1: Analyze the person using GPT-4 Vision
-    console.log('Analyzing person with GPT-4V...');
+    console.log('Starting OpenAI analysis...');
+    console.log('OpenAI client initialized:', !!openai);
     
     const analysisResponse = await openai.chat.completions.create({
       model: "gpt-4o-mini", // Faster model

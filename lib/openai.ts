@@ -1,11 +1,16 @@
 import OpenAI from 'openai';
 
-if (!process.env.OPENAI_API_KEY) {
+const apiKey = process.env.OPENAI_API_KEY;
+
+if (!apiKey) {
+  console.error('Missing OPENAI_API_KEY environment variable');
   throw new Error('Missing OPENAI_API_KEY environment variable');
 }
 
+console.log('Initializing OpenAI client with API key:', apiKey.substring(0, 10) + '...');
+
 export const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
+  apiKey: apiKey,
 });
 
 export interface PersonAnalysis {
