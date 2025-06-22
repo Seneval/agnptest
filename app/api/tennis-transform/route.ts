@@ -92,11 +92,12 @@ CRITICAL REQUIREMENTS:
 
     console.log('Generating tennis image with identity preservation...');
 
+    // First, we need to convert the base64 image to a Buffer
+    const base64Data = image.split(',')[1];
+    const imageBuffer = Buffer.from(base64Data, 'base64');
+
     // Try using the edit endpoint with the original image
     try {
-      // First, we need to convert the base64 image to a Buffer
-      const base64Data = image.split(',')[1];
-      const imageBuffer = Buffer.from(base64Data, 'base64');
       
       // Use OpenAI's toFile helper to create a File-like object
       const imageFile = await toFile(imageBuffer, 'original.png', { type: 'image/png' });
