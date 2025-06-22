@@ -99,7 +99,7 @@ CRITICAL REQUIREMENTS:
       prompt: imagePrompt,
       n: 1,
       size: "1024x1024",
-      quality: "standard" // Use standard quality for faster generation
+      quality: "medium" // Use medium quality for balance
     });
 
     
