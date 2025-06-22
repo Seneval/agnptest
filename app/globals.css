@@ -1,0 +1,32 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --agnp-navy: 10 27 61;
+    --agnp-blue: 0 102 204;
+    --agnp-electric: 74 144 226;
+    --agnp-orange: 255 107 53;
+    --agnp-yellow: 255 217 61;
+  }
+
+  body {
+    @apply bg-agnp-navy text-white;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .gradient-agnp {
+    background: linear-gradient(135deg, rgb(var(--agnp-blue)) 0%, rgb(var(--agnp-electric)) 100%);
+  }
+
+  .gradient-text {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-agnp-electric to-agnp-blue;
+  }
+}
