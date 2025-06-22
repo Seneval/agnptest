@@ -72,10 +72,47 @@ agnp-tennis-ai/
 
 ## 🚀 Deployment en Vercel
 
-1. Sube el proyecto a GitHub
-2. Conecta con Vercel
-3. Añade la variable de entorno `OPENAI_API_KEY`
-4. Deploy automático
+### Opción 1: Deploy con un click
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/Seneval/agnptest&env=OPENAI_API_KEY&envDescription=OpenAI%20API%20Key%20para%20generar%20imágenes&project-name=agnp-tennis-ai&repository-name=agnp-tennis-ai)
+
+### Opción 2: Deploy manual
+
+1. **Fork o clona el repositorio**
+   ```bash
+   git clone https://github.com/Seneval/agnptest.git
+   cd agnptest
+   ```
+
+2. **Instala Vercel CLI** (opcional)
+   ```bash
+   npm i -g vercel
+   ```
+
+3. **Deploy con Vercel CLI**
+   ```bash
+   vercel
+   ```
+
+4. **O conecta con Vercel desde GitHub**
+   - Ve a [vercel.com](https://vercel.com)
+   - Importa el proyecto desde GitHub
+   - Configura la variable de entorno:
+     - Name: `OPENAI_API_KEY`
+     - Value: Tu API key de OpenAI
+   - Click en "Deploy"
+
+### Variables de entorno requeridas
+
+| Variable | Descripción |
+|----------|-------------|
+| `OPENAI_API_KEY` | Tu API key de OpenAI (requerida) |
+
+### Configuración adicional
+
+El proyecto ya incluye:
+- `vercel.json` con la configuración optimizada
+- Edge runtime para mejor performance
+- Timeout de 60 segundos para procesamiento de imágenes
 
 ## 📝 Notas Importantes
 
