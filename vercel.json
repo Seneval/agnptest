@@ -7,7 +7,7 @@
   "regions": ["iad1"],
   "functions": {
     "app/api/tennis-transform/route.ts": {
-      "maxDuration": 60
+      "maxDuration": 180
     }
   }
 }

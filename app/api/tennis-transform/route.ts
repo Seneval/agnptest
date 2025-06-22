@@ -2,8 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { openai, getRandomTennisAction, type PersonAnalysis } from '@/lib/openai';
 import { toFile } from 'openai';
 
-export const runtime = 'edge';
-export const maxDuration = 60;
+export const maxDuration = 180; // 3 minutes
 
 export async function POST(request: NextRequest) {
   try {
