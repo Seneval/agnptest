@@ -15,75 +15,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Step 1: Analyze the person using GPT-4 Vision
-    console.log('Analyzing person with GPT-4V...');
-    
-    const analysisResponse = await openai.chat.completions.create({
-      model: "gpt-4o",
-      messages: [
-        {
-          role: "system",
-          content: "You are an expert at analyzing people in photos. Provide EXTREMELY detailed physical descriptions in Spanish. Capture every single detail about the person's appearance."
-        },
-        {
-          role: "user",
-          content: [
-            {
-              type: "text",
-              text: `Analiza MUY detalladamente a la persona en esta foto. Proporciona una descripción COMPLETA en formato JSON:
-              - age: edad exacta aproximada (ej: "25 años")
-              - gender: género ("masculino" o "femenino")
-              - skinTone: tono de piel muy específico (ej: "piel clara con subtono rosado")
-              - hairColor: color exacto del cabello (ej: "castaño oscuro con reflejos dorados")
-              - hairStyle: estilo detallado (ej: "largo hasta los hombros, liso con flequillo lateral")
-              - facialFeatures: TODOS los rasgos faciales (forma de cara, ojos, nariz, boca, cejas, pómulos, mentón)
-              - bodyType: complexión específica (ej: "delgada, hombros estrechos, contextura pequeña")
-              - height: altura estimada en metros (ej: "1.65m aproximadamente")
-              - distinctiveFeatures: TODAS las características únicas (lunares, pecas, forma de sonrisa, etc.)`
-            },
-            {
-              type: "image_url",
-              image_url: {
-                url: image,
-                detail: "high"
-              }
-            }
-          ]
-        }
-      ],
-      max_tokens: 500,
-      temperature: 0.3,
-      response_format: { type: "json_object" }
-    });
+    // Skip analysis - we'll use the image directly
+    console.log('Using image directly for transformation...');
 
-    const personAnalysis = JSON.parse(
-      analysisResponse.choices[0].message.content || '{}'
-    ) as PersonAnalysis;
-
-    console.log('Person analyzed:', personAnalysis);
-
-    // Step 2: Generate tennis image with gpt-image-1 using a more specific prompt
+    // Get random action
     const action = getRandomTennisAction();
     
-    // Create an ultra-specific prompt for the edit endpoint
-    const editPrompt = `Take this EXACT person and dress them as a tennis player. 
-
-INSTRUCTIONS:
-- Keep the SAME person - same face, same body, same age, same everything
-- ONLY change their clothes to tennis attire
-- ONLY change the background to a tennis court
-- Add a tennis racquet to their hand
-- Action: ${action}
-
-DO NOT CHANGE:
-- The person's face AT ALL
-- Their body type or proportions
-- Their hair style or color
-- Their skin tone
-- Their age or gender
-- Any physical features
-
-This must be the IDENTICAL person, just wearing tennis clothes on a tennis court.`;
+    // Direct prompt for edit - keep everything about the person
+    const editPrompt = `Keep this EXACT person with their EXACT clothes. Only add: ${action} pose, tennis racquet in hand, tennis court background. DO NOT change the person or their clothing AT ALL. The intended effect is for the person uploading the photo to think WOW, that is me!`;
 
     console.log('Generating tennis image with identity preservation...');
 
@@ -131,7 +70,6 @@ This must be the IDENTICAL person, just wearing tennis clothes on a tennis court
       return NextResponse.json({
         success: true,
         imageUrl: generatedImageUrl,
-        analysis: personAnalysis,
         action: action
       });
       
@@ -167,75 +105,15 @@ This must be the IDENTICAL person, just wearing tennis clothes on a tennis court
           return NextResponse.json({
             success: true,
             imageUrl: varImageUrl,
-            analysis: personAnalysis,
             action: action,
             method: 'variation'
           });
         }
       } catch (varError) {
-        console.log('Variation failed, using generation as last resort');
+        console.log('Variation also failed');
+        // No more fallbacks - we only use visual reference
+        throw new Error('Could not transform image while preserving identity');
       }
-      
-      // Last resort: Use generation with ultra-detailed description
-      const detailedPrompt = `Professional tennis player photo of a ${personAnalysis.gender === 'femenino' ? 'woman' : 'man'} with THESE EXACT features:
-
-PHYSICAL DESCRIPTION (MUST MATCH EXACTLY):
-- Age: ${personAnalysis.age}
-- Skin: ${personAnalysis.skinTone}
-- Hair: ${personAnalysis.hairColor}, ${personAnalysis.hairStyle}
-- Face: ${personAnalysis.facialFeatures}
-- Body: ${personAnalysis.bodyType}
-- Height: ${personAnalysis.height}
-- Unique features: ${personAnalysis.distinctiveFeatures}
-
-TENNIS SCENE:
-- Action: ${action}
-- Wearing: Professional tennis attire
-- Setting: Tennis court with blue hard court
-- Style: Professional sports photography
-
-This person must look EXACTLY like the description above. Every detail must match perfectly.`;
-
-      const imageResponse = await openai.images.generate({
-        model: "gpt-image-1",
-        prompt: detailedPrompt,
-        n: 1,
-        size: "1024x1024",
-        quality: "high"
-      });
-
-      // Log the entire response to debug
-      console.log('Fallback Image API Response:', JSON.stringify(imageResponse, null, 2));
-
-      // Validate response structure
-      if (!imageResponse || !imageResponse.data || imageResponse.data.length === 0) {
-        console.error('Invalid image response:', imageResponse);
-        throw new Error('No image data in response');
-      }
-
-      // Check if we have b64_json or url
-      const imageData = imageResponse.data[0];
-      let generatedImageUrl: string;
-
-      if (imageData.b64_json) {
-        // Convert base64 to data URL
-        generatedImageUrl = `data:image/png;base64,${imageData.b64_json}`;
-        console.log('Image generated as base64');
-      } else if (imageData.url) {
-        generatedImageUrl = imageData.url;
-        console.log('Image generated with URL');
-      } else {
-        console.error('No image data found:', imageData);
-        throw new Error('No image was generated');
-      }
-
-      return NextResponse.json({
-        success: true,
-        imageUrl: generatedImageUrl,
-        analysis: personAnalysis,
-        action: action,
-        method: 'generation' // Indicate which method was used
-      });
     }
 
   } catch (error) {
